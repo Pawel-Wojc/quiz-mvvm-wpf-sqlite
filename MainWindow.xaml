@@ -3,24 +3,95 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        
+        xmlns:vm="clr-namespace:quiz_resolver.ViewModel"
+        
         xmlns:local="clr-namespace:quiz_resolver"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="400">
+        Title="QUIZ" Height="450" Width="800">
+
+
+
+    <Window.DataContext>
+        <vm:MainViewModel x:Name="mainViewModel"/>
+    </Window.DataContext>
 
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
 
-        <Button Content="Start" Click="Button_Click" Margin="10,350,10,10" Width="300"/>
+
+        <TextBlock  Name="Time" 
+                Grid.Column="1" 
+                Grid.Row="0" 
+                Text="{Binding ElapsedTime}"
+                    />
+                
+                
 
 
-        <ListBox d:ItemsSource="{d:SampleData ItemCount=5}" Margin="20,20,20,100"/>
+        <Label   Name="Question_Number" Grid.Column="2"  Grid.Row="0" >
+            
+        </Label>
+        <Border Style="{StaticResource MyBorderStyle}" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1" Margin="10,10,10,10">
+            <Label  Name="Question_Text"  Margin="10,10,10,10" Content="{Binding Question}"  />
+
+
+        </Border>
+
+        <Button Name="Button_Answer_A" Grid.Column="1" Grid.Row="2" Margin="10,10,5,10" Style="{DynamicResource RoundButton}" Background="#FFCEC7C7" >
+            A
+        </Button>
+        <Button Name="Button_Answer_B" Grid.Column="2" Grid.Row="2" Margin="10,10,10,10" Style="{DynamicResource RoundButton}" Background="#FFCEC7C7" >
+            B
+        </Button>
+        <Button Name="Button_Answer_C" Grid.Column="1" Grid.Row="3" Margin="10,10,5,10" Style="{DynamicResource RoundButton}" Background="#FFCEC7C7" >
+            C
+        </Button>
+        <Button Name="Button_Answer_D" Grid.Column="2" Grid.Row="3" Margin="10,10,10,10" Style="{DynamicResource RoundButton}" Background="#FFCEC7C7" >
+            D
+        </Button>
+        <Button Name="Button_Next_Question" Grid.ColumnSpan="2" Grid.Column="1"  Grid.Row="4" Margin="35,20,50,20" Style="{DynamicResource RoundButton}" Background="#FFCEC7C7" >
+            NEXT
+        </Button>
+
+
+
+
+        <Button Name="Button_Start"
+                Grid.Column="0"   
+                Grid.Row="4"
+                Margin="35,20,50,20"
+                Style="{DynamicResource RoundButton}"
+                Command="{Binding StartCommand}">
+            START
+        </Button>
+
+        <Border Style="{StaticResource MyBorderStyle}"  Grid.Column="0" Grid.Row="1" Grid.RowSpan="3" Margin="10,10,10,10">
+            <ListBox ItemsSource="{Binding Quiz_table}" 
+                 DisplayMemberPath="Name"
+                 BorderThickness="0"
+                     SelectedItem="{Binding SelectedItem}"
+                Margin="10,10,6,10"/>
+            
+        </Border>
+
+
+
+
+
+
+
     </Grid>
-
 </Window>
 
-
-<!--<Window x:Class="quiz_resolver.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="350" Width="525">
-    
-//</Window>-->

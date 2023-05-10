@@ -32,21 +32,14 @@ namespace quiz_resolver
         public MainWindow()
         {
             InitializeComponent();
-            // MainWindow mainWindow = new MainWindow();
+           // MainWindow mainWindow = new MainWindow();
             //mainWindow.Owner = this;
             //mainWindow.Show();
 
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-
-
-            SecondWindow secondWindow = new SecondWindow();
-            secondWindow.Show();
-            this.Hide();
-        }
+      
     }
 
-
+    
 }
