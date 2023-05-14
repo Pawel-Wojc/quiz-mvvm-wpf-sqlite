@@ -16,6 +16,10 @@
         <vm:MainViewModel x:Name="mainViewModel"/>
     </Window.DataContext>
 
+    
+
+
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*" />
@@ -35,7 +39,7 @@
                 Grid.Column="1" 
                 Grid.Row="0" 
                 Text="{Binding ElapsedTime}"
-                    />
+        />
                 
                 
 
@@ -48,20 +52,48 @@
 
 
         </Border>
+       
+        <ToggleButton Name="Button_Answer_A" 
+                
+                Grid.Column="1"
+                Grid.Row="2" 
+                Margin="10,10,5,10"
+                Style="{DynamicResource RoundButton}"
+                Background="#FFCEC7C7"
+                Content="{Binding AnswerA}"/>
 
-        <Button Name="Button_Answer_A" Grid.Column="1" Grid.Row="2" Margin="10,10,5,10" Style="{DynamicResource RoundButton}" Background="#FFCEC7C7" >
-            A
-        </Button>
-        <Button Name="Button_Answer_B" Grid.Column="2" Grid.Row="2" Margin="10,10,10,10" Style="{DynamicResource RoundButton}" Background="#FFCEC7C7" >
-            B
-        </Button>
-        <Button Name="Button_Answer_C" Grid.Column="1" Grid.Row="3" Margin="10,10,5,10" Style="{DynamicResource RoundButton}" Background="#FFCEC7C7" >
-            C
-        </Button>
-        <Button Name="Button_Answer_D" Grid.Column="2" Grid.Row="3" Margin="10,10,10,10" Style="{DynamicResource RoundButton}" Background="#FFCEC7C7" >
-            D
-        </Button>
-        <Button Name="Button_Next_Question" Grid.ColumnSpan="2" Grid.Column="1"  Grid.Row="4" Margin="35,20,50,20" Style="{DynamicResource RoundButton}" Background="#FFCEC7C7" >
+        <ToggleButton Name="Button_Answer_B"
+                Grid.Column="2" 
+                Grid.Row="2"
+                Margin="10,10,10,10"
+                Style="{DynamicResource RoundButton}"
+                Background="#FFCEC7C7"
+                Content="{Binding AnswerB}"/>
+
+        <ToggleButton  Name="Button_Answer_C" 
+                Grid.Column="1"
+                Grid.Row="3"
+                Margin="10,10,5,10"
+                Style="{DynamicResource RoundButton}" 
+                Background="#FFCEC7C7"
+                Content="{Binding AnswerC}"/>
+
+        <ToggleButton  Name="Button_Answer_D"
+                Grid.Column="2"
+                Grid.Row="3" 
+                Margin="10,10,10,10"
+                Style="{DynamicResource RoundButton}"
+                Background="#FFCEC7C7" 
+                Content="{Binding AnswerB}"/>
+            
+        <Button Name="Button_Next_Question" 
+                Grid.ColumnSpan="2" 
+                Grid.Column="1" 
+                Grid.Row="4"
+                Margin="35,20,50,20"
+                Style="{DynamicResource RoundButton}" 
+                Background="#FFCEC7C7"
+                Command="{Binding NextQuestionCommand}">>
             NEXT
         </Button>
 

@@ -4,9 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data;
 using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Timers;
 using System.Windows;
@@ -24,8 +26,13 @@ namespace quiz_resolver.ViewModel
         private TimeSpan _elapsedTime;
         private bool _isRunning;
         public ICommand StartCommand { get; set; }
-        
+        public ICommand NextQuestionCommand { get; set; }
 
+        public Item currentQuestion { get; set; }
+        public string AnswerA { get; set; }
+        public string AnswerB { get; set; }
+        public string AnswerC { get; set; }
+        public string AnswerD { get; set; }
         //quiz table
         private ObservableCollection<Item> quiz_table;
         public ObservableCollection<Item> Quiz_table
@@ -40,6 +47,7 @@ namespace quiz_resolver.ViewModel
                 }
             }
         }
+        
 
         private string _question;
         public string Question {
@@ -77,27 +85,66 @@ namespace quiz_resolver.ViewModel
         public MainViewModel()
         {
             _Database = new DataReader();
-            Quiz_table = new ObservableCollection<Item>();
             
-            Quiz_table = _Database.ReadQuizzes();        
+            
+            
             _stopwatch = new Stopwatch();
 
+            ReadQuizes();
 
+
+            //foreach (DataRow row in dataTable.Rows)
+            //{
+            //    foreach (DataColumn col in dataTable.Columns)
+            //    {
+            //        Debug.WriteLine("wiersz: "+row[col] + "\t");
+            //    }
+            //    Debug.WriteLine(" ");
+            //}
+
+
+            //object wartoscKomorki = dataTable.Rows[0]["title"]; tak dostane sie do pojedynczej komorki
+            
+            NextQuestionCommand = new RelayCommand(NexQuestionButtonClicker, CanNextQuestion);
             StartCommand = new RelayCommand(StartButtonClicked, CanStart);
             
             //PropertyChanged += TimerViewModel_PropertyChanged;   PO CO?
         }
 
+        private void NexQuestionButtonClicker(object obj)
+        {
+            throw new NotImplementedException();
+        }
+
         //
+        public void ReadQuizes() {
+            Quiz_table = new ObservableCollection<Item>();
+            Quiz_table = _Database.ReadQuizzes();
+        }
 
 
         public void StartButtonClicked(object obj)
         {
             StartTimer(obj);
-            przycisk_start(obj);
-
+            show_question(obj);
+            show_answers(obj);
         }
 
+        private void show_answers(object obj)
+        {
+            List<Item> answers = new List<Item>();
+            answers = _Database.ReadAnswers(currentQuestion);
+
+            AnswerA = answers.ElementAt(0).AnswerA;
+            OnPropertyChanged(nameof(AnswerA));
+            AnswerB = answers.ElementAt(1).AnswerB;
+            OnPropertyChanged(nameof(AnswerB));
+            AnswerC = answers.ElementAt(2).AnswerC;
+            OnPropertyChanged(nameof(AnswerC));
+            AnswerD = answers.ElementAt(3).AnswerD;
+            OnPropertyChanged(nameof(AnswerD));
+
+        }
 
         private Item selectedItem;
         public Item SelectedItem
@@ -115,9 +162,10 @@ namespace quiz_resolver.ViewModel
 
 
 
-        public void przycisk_start(object o) {
+        public void show_question(object o) {
             Question_table = question_from_db();
             Question = Question_table.First().Name;
+            currentQuestion = Question_table.First();
             OnPropertyChanged("Button_Start");
             
 
@@ -140,18 +188,27 @@ namespace quiz_resolver.ViewModel
             }
         }
 
+
+
         public bool CanStart(object obj)
         {
             if (selectedItem != null && !_isRunning)
             {
                 // _Database.ReadQuestions(SelectedItem);
-                
+
                 return true;
 
             }
-            else {
+            else
+            {
                 return false;
             }
+        }
+
+
+        public bool CanNextQuestion(object obj)
+        {
+            return true;
         }
 
         public void StartTimer(object obj)
