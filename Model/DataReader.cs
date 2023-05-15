@@ -76,14 +76,14 @@ namespace quiz_resolver.Model
         }
 
 
-        public ObservableCollection<Item> ReadQuestions(Item selecetedQuiz)
+        public List<Item> ReadQuestions(Item selecetedQuiz)
         {
             SQLiteDataReader sqlite_datareader;
             SQLiteCommand sqlite_cmd;
             sqlite_cmd = sqlite_conn.CreateCommand();
             sqlite_cmd.CommandText = "SELECT * FROM question where quiz_id = "+selecetedQuiz.Id.ToString();
 
-            ObservableCollection<Item> question_table = new ObservableCollection<Item>();
+            List<Item> question_table = new List<Item>();
             sqlite_datareader = sqlite_cmd.ExecuteReader();
             while (sqlite_datareader.Read())
             {
@@ -112,29 +112,16 @@ namespace quiz_resolver.Model
                 string test = sqlite_datareader.GetInt16(1).ToString() + " " + sqlite_datareader.GetString(2) + " A: " + item.AnswerA + "B " + item.AnswerB + "C " + item.AnswerC + "D " + item.AnswerD;
                 System.Diagnostics.Debug.WriteLine(test);
             }
-         
-            return question_table;
+            
+            return ReadAnswers(question_table);
         }
 
 
-        public List<Item> ReadAnswers(Item selecetedQuestion) // 
+        public List<Item> ReadAnswers(List<Item> ListQuestion) // 
         {
-            SQLiteDataReader sqlite_datareader;
-            //SQLiteCommand sqlite_cmd;
-            //sqlite_cmd = sqlite_conn.CreateCommand();
-            //sqlite_cmd.CommandText = "SELECT * FROM question where quiz_id = " + selecetedQuiz.Id.ToString();
-
-            //ObservableCollection<Item> question_table = new ObservableCollection<Item>();
-            //sqlite_datareader = sqlite_cmd.ExecuteReader();
-            //while (sqlite_datareader.Read())
-            //{
-            Item item = new Item();
-            //item.Id = sqlite_datareader.GetInt16(0);
-            //item.Name = sqlite_datareader.GetString(2);
-            // quiz_table.Add(quiz_id, quiz_name);
-
-            // odpowiedzi odarazu
-            SQLiteDataReader sqlite_datareader_answer;
+            foreach (Item selecetedQuestion in ListQuestion) {
+                SQLiteDataReader sqlite_datareader;
+                SQLiteDataReader sqlite_datareader_answer;
                 SQLiteCommand sqlite_cmd_answer;
                 sqlite_cmd_answer = sqlite_conn.CreateCommand();
                 sqlite_cmd_answer.CommandText = "SELECT * FROM answer where question_id = " + selecetedQuestion.Id;
@@ -145,57 +132,43 @@ namespace quiz_resolver.Model
                 {
                     if (i == 0)
                     {
-                        item.AnswerA = sqlite_datareader_answer.GetString(2);
+                        selecetedQuestion.AnswerA = sqlite_datareader_answer.GetString(2);
 
                         // tymczasowo sprawdzam czy jest 1 czy 0, pozniej bedzie base64
 
                         if (sqlite_datareader_answer.GetInt16(3) == 1) {
-                            item._answerA_is_correct = true;
+                            selecetedQuestion._answerA_is_correct = true;
                         }
                         
                     }
                     else if (i == 1) { 
-                        item.AnswerB = sqlite_datareader_answer.GetString(2);
+                        selecetedQuestion.AnswerB = sqlite_datareader_answer.GetString(2);
                         if (sqlite_datareader_answer.GetInt16(3) == 1)
                         {
-                            item._answerB_is_correct = true;
+                            selecetedQuestion._answerB_is_correct = true;
                         }
                     }
                     else if (i == 2) {
-                        item.AnswerC = sqlite_datareader_answer.GetString(2);
+                        selecetedQuestion.AnswerC = sqlite_datareader_answer.GetString(2);
                         if (sqlite_datareader_answer.GetInt16(3) == 1)
                         {
-                            item._answerC_is_correct = true;
+                            selecetedQuestion._answerC_is_correct = true;
                         }
                     }
                     else if (i == 3) {
-                        item.AnswerD = sqlite_datareader_answer.GetString(2);
+                        selecetedQuestion.AnswerD = sqlite_datareader_answer.GetString(2);
                         if (sqlite_datareader_answer.GetInt16(3) == 1)
                         {
-                            item._answerD_is_correct = true;
+                            selecetedQuestion._answerD_is_correct = true;
                         }
 
-                    }
-                answers.Add(item);
+                    }             
                 i++;
                 }
-            return answers;
-
-            //    question_table.Add(item);
-
-            //    string test = sqlite_datareader.GetInt16(1).ToString() + " " + sqlite_datareader.GetString(2) + " A: " + item.AnswerA + "B " + item.AnswerB + "C " + item.AnswerC + "D " + item.AnswerD;
-            //    System.Diagnostics.Debug.WriteLine(test);
-            //}
-
-            //return question_table;
+            }
+            return ListQuestion;
+         
         }
-
-
-
-
-
-
-
 
 
         ~DataReader()
