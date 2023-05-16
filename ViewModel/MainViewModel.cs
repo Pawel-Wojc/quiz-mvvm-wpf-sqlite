@@ -23,12 +23,13 @@ namespace quiz_resolver.ViewModel
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public string question_number { get; set; }
-
+        private bool _end_of_questions = true;
         private Stopwatch _stopwatch;
         private TimeSpan _elapsedTime;
         private bool _isRunning;
-        private int Points = 0;
-        private int maxPoints = 0;
+        private int _earned_points = 0;
+        public string earned_points { get; set; }
+        private int _maxPoints = 0;
         private bool _is_button_one_selected;
         public bool is_button_one_selected {
             get { return _is_button_one_selected; }
@@ -80,9 +81,7 @@ namespace quiz_resolver.ViewModel
                 }
             }
         }
-        public ICommand StartCommand { get; set; }
-        public ICommand NextQuestionCommand { get; set; }
-
+        
         public Item currentQuestion { get; set; }
         private string _answer_a;
         public string answer_a {
@@ -133,15 +132,15 @@ namespace quiz_resolver.ViewModel
             }
         }
         //quiz table
-        private ObservableCollection<Item> quiz_table;
-        public ObservableCollection<Item> Quiz_table
+        private ObservableCollection<Item> _quiz_table;
+        public ObservableCollection<Item> quiz_table
         {
-            get { return quiz_table; }
+            get { return _quiz_table; }
             set
             {
-                if (quiz_table != value)
+                if (_quiz_table != value)
                 {
-                    quiz_table = value;
+                    _quiz_table = value;
                     OnPropertyChanged(nameof(quiz_table));
                 }
             }
@@ -161,29 +160,29 @@ namespace quiz_resolver.ViewModel
             }
         }
         //question table
-        private List<Item> question_table;
-        public List<Item> Question_table
+        private List<Item> _question_table;
+        public List<Item> question_table
         {
-            get { return question_table; }
+            get { return _question_table; }
             set
             {
-                if (question_table != value)
+                if (_question_table != value)
                 {
-                    question_table = value;
-                    OnPropertyChanged(nameof(Question_table));
+                    _question_table = value;
+                    OnPropertyChanged(nameof(question_table));
                 }
             }
         }
-        private Item selectedQuiz;
-        public Item SelectedQuiz
+        private Item _selected_quiz;
+        public Item selected_quiz
         {
-            get { return selectedQuiz; }
+            get { return _selected_quiz; }
             set
             {
-                if (selectedQuiz != value)
+                if (_selected_quiz != value)
                 {
-                    selectedQuiz = value;
-                    OnPropertyChanged(nameof(SelectedQuiz));
+                    _selected_quiz = value;
+                    OnPropertyChanged(nameof(selected_quiz));
                 }
             }
         }
@@ -191,30 +190,29 @@ namespace quiz_resolver.ViewModel
 
 
 
-        DataReader _Database;
+        DataReader _database;
 
-        
+        public ICommand start_command { get; set; }
+        public ICommand next_question_command { get; set; }
+
         public MainViewModel()
         {
-            _Database = new DataReader();
-            
-            
-            
-            _stopwatch = new Stopwatch();
-
             ReadQuizes();
 
 
             
+            _stopwatch = new Stopwatch();
+      
             
-            NextQuestionCommand = new RelayCommand(NexQuestionButtonClicker, CanNextQuestion);
-            StartCommand = new RelayCommand(StartButtonClicked, CanStart);
+            next_question_command = new RelayCommand(NexQuestionButtonClicker, CanNextQuestion);
+            start_command = new RelayCommand(StartButtonClicked, CanStart);
             
             //PropertyChanged += TimerViewModel_PropertyChanged;   PO CO?
         }
 
         private void NexQuestionButtonClicker(object obj)
         {
+            CheckAsnwers();
             ShowNextQuestion();
             Show_Current_Answers();
             Debug.WriteLine("Klikenito next");
@@ -223,13 +221,18 @@ namespace quiz_resolver.ViewModel
 
         //
         public void ReadQuizes() {
-            Quiz_table = new ObservableCollection<Item>();
-            Quiz_table = _Database.ReadQuizzes();
+            _database = new DataReader();
+            quiz_table = new ObservableCollection<Item>();
+            quiz_table = _database.ReadQuizzes();
         }
 
         
         public void StartButtonClicked(object obj)
         {
+            _earned_points = 0;
+            earned_points = "Points: 0";
+            OnPropertyChanged(nameof(earned_points));
+
             StartTimer(obj);
             
             ShowNextQuestion();
@@ -254,46 +257,69 @@ namespace quiz_resolver.ViewModel
 
             if (currentQuestion == null)
             {
-                Question_table = question_from_db();
-                maxPoints = Question_table.Count;
-                currentQuestion = Question_table.First();
+                _end_of_questions = false;
+                question_table = QuestionFromDB();
+                _maxPoints = question_table.Count;
+                currentQuestion = question_table.First();
                 Question_Property_Content = currentQuestion.Name;
-                
-                
-                
+             
             }
-            else if (Question_table.Count() - 1 != Question_table.IndexOf(currentQuestion))
+            else if (question_table.Count() - 1 != question_table.IndexOf(currentQuestion))
             {
-                current_index = Question_table.IndexOf(currentQuestion) ;
-                currentQuestion = Question_table.ElementAt(current_index + 1);
+                current_index = question_table.IndexOf(currentQuestion) ;
+                currentQuestion = question_table.ElementAt(current_index + 1);
                 Question_Property_Content = currentQuestion.Name;
                 current_index += 2; //2 because iteration starts from 0 and we change question to next one
 
             }
             else {
-                current_index = maxPoints;
-                end_of_questions();
+                current_index = _maxPoints;
+                EndOfQuestions();
 
             }
-            question_number = (current_index).ToString()+" of "+maxPoints.ToString();
+            question_number = (current_index).ToString()+" of "+_maxPoints.ToString();
             OnPropertyChanged(nameof(question_number));
 
 
         }
 
-        private void end_of_questions()
+        public void CheckAsnwers() {
+            if (is_button_one_selected == currentQuestion._answerA_is_correct && is_button_two_selected == currentQuestion._answerB_is_correct && is_button_three_selected == currentQuestion._answerC_is_correct && is_button_four_selected == currentQuestion._answerD_is_correct) {
+                _earned_points += 1;
+                earned_points = "Points: " + _earned_points.ToString();
+                OnPropertyChanged(nameof(earned_points));
+            }
+            
+        }
+
+        private void EndOfQuestions()
         {
-            Debug.WriteLine("Koniec pytan");
+            _end_of_questions = true;
+            Question_Property_Content = "Result:" + earned_points.ToString() + " of " + _maxPoints.ToString() + " in " + _elapsedTime.ToString();
+            
         }
 
        
-        public List<Item> question_from_db() {         
+        public List<Item> QuestionFromDB() {         
             List<Item> tabelka = new();
-            tabelka = _Database.ReadQuestions(SelectedQuiz);
+            tabelka = _database.ReadQuestions(selected_quiz);
             return tabelka;
         }
 
- 
+        public bool CanNextQuestion(object obj)
+        {
+            if (!_end_of_questions)
+            {
+                if (is_button_one_selected || is_button_two_selected || is_button_three_selected || is_button_four_selected) return true;
+                else return false;
+
+            }
+            else return false;
+            
+
+        }
+
+
         // TIMER
 
 
@@ -309,10 +335,9 @@ namespace quiz_resolver.ViewModel
 
         public bool CanStart(object obj)
         {
-            if (selectedQuiz != null && !_isRunning)
+            if (_selected_quiz != null && !_isRunning)
             {
-                // _Database.ReadQuestions(SelectedItem);
-
+                
                 return true;
 
             }
@@ -323,12 +348,7 @@ namespace quiz_resolver.ViewModel
         }
 
 
-        public bool CanNextQuestion(object obj)
-        {
-            if (is_button_one_selected || is_button_two_selected || is_button_three_selected || is_button_four_selected) return true;
-            else return false;
-            
-        }
+       
 
         public void StartTimer(object obj)
         {

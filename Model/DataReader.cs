@@ -58,7 +58,7 @@ namespace quiz_resolver.Model
             sqlite_cmd = sqlite_conn.CreateCommand();
             sqlite_cmd.CommandText = "SELECT * FROM quiz";
 
-            ObservableCollection<Item> quiz_table = new ObservableCollection< Item>();
+            ObservableCollection<Item> _quiz_table = new ObservableCollection< Item>();
             sqlite_datareader = sqlite_cmd.ExecuteReader();
             while (sqlite_datareader.Read())
             {
@@ -66,13 +66,13 @@ namespace quiz_resolver.Model
                 Item item = new Item();
                 item.Id = sqlite_datareader.GetInt16(0);
                 item.Name = sqlite_datareader.GetString(1);
-                // quiz_table.Add(quiz_id, quiz_name);
-                quiz_table.Add( item);
+                // _quiz_table.Add(quiz_id, quiz_name);
+                _quiz_table.Add( item);
                 
 
             }
             
-            return quiz_table;
+            return _quiz_table;
         }
 
 
@@ -90,7 +90,7 @@ namespace quiz_resolver.Model
                 Item item = new Item();
                 item.Id = sqlite_datareader.GetInt16(0);
                 item.Name = sqlite_datareader.GetString(2);
-                // quiz_table.Add(quiz_id, quiz_name);
+                // _quiz_table.Add(quiz_id, quiz_name);
 
                 // odpowiedzi odarazu
                 SQLiteDataReader sqlite_datareader_answer;

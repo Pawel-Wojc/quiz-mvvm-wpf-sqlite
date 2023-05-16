@@ -45,8 +45,10 @@
 
 
         <Label   Name="Question_Number" Grid.Column="2"  Grid.Row="0" Content="{Binding question_number}">
-            
         </Label>
+        <Label    Grid.Column="2"  Grid.Row="0" Content="{Binding earned_points}" HorizontalContentAlignment="Right">
+        </Label>
+        
         <Border Style="{StaticResource MyBorderStyle}" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1" Margin="10,10,10,10">
             <Label  Name="Question_Text"  Margin="10,10,10,10" Content="{Binding Question_Property_Content}"  />
 
@@ -97,7 +99,7 @@
                 Margin="35,20,50,20"
                 Style="{DynamicResource RoundButton}" 
                 Background="#FFCEC7C7"
-                Command="{Binding NextQuestionCommand}">
+                Command="{Binding next_question_command}">
                     NEXT
                 </Button>
 
@@ -109,15 +111,15 @@
                 Grid.Row="4"
                 Margin="35,20,50,20"
                 Style="{DynamicResource RoundButton}"
-                Command="{Binding StartCommand}">
+                Command="{Binding start_command}">
             START
         </Button>
 
         <Border Style="{StaticResource MyBorderStyle}"  Grid.Column="0" Grid.Row="1" Grid.RowSpan="3" Margin="10,10,10,10">
-            <ListBox ItemsSource="{Binding Quiz_table}" 
+            <ListBox ItemsSource="{Binding quiz_table}" 
                  DisplayMemberPath="Name"
                  BorderThickness="0"
-                     SelectedItem="{Binding SelectedQuiz}"
+                     SelectedItem="{Binding selected_quiz}"
                 Margin="10,10,6,10"/>
             
         </Border>
