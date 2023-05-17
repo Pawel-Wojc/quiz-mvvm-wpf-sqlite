@@ -1,20 +1,12 @@
 ﻿using quiz_resolver.Model;
-using quiz_resolver.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Data;
-using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Timers;
-using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Threading;
+
 
 namespace quiz_resolver.ViewModel
 {
@@ -31,6 +23,8 @@ namespace quiz_resolver.ViewModel
         public string earned_points { get; set; }
         private int _maxPoints = 0;
         private bool _is_button_one_selected;
+
+        #region Properties
         public bool is_button_one_selected {
             get { return _is_button_one_selected; }
             set
@@ -187,7 +181,7 @@ namespace quiz_resolver.ViewModel
             }
         }
 
-
+        #endregion
 
 
         DataReader _database;
@@ -197,16 +191,10 @@ namespace quiz_resolver.ViewModel
 
         public MainViewModel()
         {
-            ReadQuizes();
-
-
-            
+            ReadQuizes();            
             _stopwatch = new Stopwatch();
-      
-            
             next_question_command = new RelayCommand(NexQuestionButtonClicker, CanNextQuestion);
-            start_command = new RelayCommand(StartButtonClicked, CanStart);
-            
+            start_command = new RelayCommand(StartButtonClicked, CanStart);           
             //PropertyChanged += TimerViewModel_PropertyChanged;   PO CO?
         }
 
@@ -246,8 +234,7 @@ namespace quiz_resolver.ViewModel
             answer_c = currentQuestion.AnswerC;
             answer_d = currentQuestion.AnswerD;
 
-            is_button_one_selected = is_button_two_selected = is_button_three_selected = is_button_four_selected = false;
-            
+            is_button_one_selected = is_button_two_selected = is_button_three_selected = is_button_four_selected = false;          
         }
 
 
@@ -260,7 +247,7 @@ namespace quiz_resolver.ViewModel
                 _end_of_questions = false;
                 question_table = QuestionFromDB();
                 _maxPoints = question_table.Count;
-                currentQuestion = question_table.First();
+                currentQuestion = question_table.FirstOrDefault();
                 Question_Property_Content = currentQuestion.Name;
              
             }
@@ -303,6 +290,14 @@ namespace quiz_resolver.ViewModel
         public List<Item> QuestionFromDB() {         
             List<Item> tabelka = new();
             tabelka = _database.ReadQuestions(selected_quiz);
+            Debug.WriteLine("przed foreach");
+            Debug.WriteLine(tabelka.Count());
+            foreach (Item item in tabelka)
+            { 
+                Debug.WriteLine(item.Name);
+            }
+            Debug.WriteLine("po foreach");
+            if (tabelka == null) Debug.WriteLine("tabelka to null");
             return tabelka;
         }
 
@@ -312,11 +307,8 @@ namespace quiz_resolver.ViewModel
             {
                 if (is_button_one_selected || is_button_two_selected || is_button_three_selected || is_button_four_selected) return true;
                 else return false;
-
             }
             else return false;
-            
-
         }
 
 
@@ -381,8 +373,6 @@ namespace quiz_resolver.ViewModel
         // OnPropertyChanged
         private void OnPropertyChanged(string propertyName) {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        
+        }     
     }
 }
