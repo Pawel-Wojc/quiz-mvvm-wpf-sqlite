@@ -1,4 +1,5 @@
 ﻿using quiz_resolver.Model;
+using quiz_resolver.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -6,7 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
-
+using System.Windows.Threading;
 
 namespace quiz_resolver.ViewModel
 {
@@ -20,9 +21,12 @@ namespace quiz_resolver.ViewModel
         private TimeSpan _elapsedTime;
         private bool _isRunning;
         private int _earned_points = 0;
-        public string earned_points { get; set; }
+        public string points { get; set; }
+        public string elapsed_time { get; set; }
         private int _maxPoints = 0;
         private bool _is_button_one_selected;
+        public DispatcherTimer timer = new DispatcherTimer();
+
 
         #region Properties
         public bool is_button_one_selected {
@@ -191,19 +195,20 @@ namespace quiz_resolver.ViewModel
 
         public MainViewModel()
         {
+            
             ReadQuizes();            
             _stopwatch = new Stopwatch();
             next_question_command = new RelayCommand(NexQuestionButtonClicker, CanNextQuestion);
-            start_command = new RelayCommand(StartButtonClicked, CanStart);           
+            start_command = new RelayCommand(StartButtonClicked, CanStart);
             //PropertyChanged += TimerViewModel_PropertyChanged;   PO CO?
+            
         }
 
         private void NexQuestionButtonClicker(object obj)
         {
             CheckAsnwers();
             ShowNextQuestion();
-            Show_Current_Answers();
-            Debug.WriteLine("Klikenito next");
+
                      
         }
 
@@ -218,38 +223,37 @@ namespace quiz_resolver.ViewModel
         public void StartButtonClicked(object obj)
         {
             _earned_points = 0;
-            earned_points = "Points: 0";
-            OnPropertyChanged(nameof(earned_points));
+            points = "Points: 0";
+            OnPropertyChanged(nameof(points));
+            elapsed_time = "00:00:00";
+            OnPropertyChanged(nameof(elapsed_time));
 
             StartTimer(obj);
-            
             ShowNextQuestion();
-            Show_Current_Answers();
+            //Show_Current_Answers();
+            _end_of_questions = false;
         }
-
         private void Show_Current_Answers()
         {      
             answer_a = currentQuestion.AnswerA;
             answer_b = currentQuestion.AnswerB;
             answer_c = currentQuestion.AnswerC;
             answer_d = currentQuestion.AnswerD;
-
             is_button_one_selected = is_button_two_selected = is_button_three_selected = is_button_four_selected = false;          
         }
 
 
         public void ShowNextQuestion() {
             int current_index = 1;
-
-
             if (currentQuestion == null)
             {
                 _end_of_questions = false;
-                question_table = QuestionFromDB();
+                question_table = _database.ReadQuestions(selected_quiz);
                 _maxPoints = question_table.Count;
                 currentQuestion = question_table.FirstOrDefault();
                 Question_Property_Content = currentQuestion.Name;
-             
+                Show_Current_Answers();
+
             }
             else if (question_table.Count() - 1 != question_table.IndexOf(currentQuestion))
             {
@@ -257,24 +261,25 @@ namespace quiz_resolver.ViewModel
                 currentQuestion = question_table.ElementAt(current_index + 1);
                 Question_Property_Content = currentQuestion.Name;
                 current_index += 2; //2 because iteration starts from 0 and we change question to next one
+                Show_Current_Answers();
 
             }
             else {
                 current_index = _maxPoints;
+                Show_Current_Answers();
                 EndOfQuestions();
 
             }
             question_number = (current_index).ToString()+" of "+_maxPoints.ToString();
             OnPropertyChanged(nameof(question_number));
-
-
+            
         }
 
         public void CheckAsnwers() {
             if (is_button_one_selected == currentQuestion._answerA_is_correct && is_button_two_selected == currentQuestion._answerB_is_correct && is_button_three_selected == currentQuestion._answerC_is_correct && is_button_four_selected == currentQuestion._answerD_is_correct) {
                 _earned_points += 1;
-                earned_points = "Points: " + _earned_points.ToString();
-                OnPropertyChanged(nameof(earned_points));
+                points = "Points: " + _earned_points.ToString();
+                OnPropertyChanged(nameof(points));
             }
             
         }
@@ -282,23 +287,14 @@ namespace quiz_resolver.ViewModel
         private void EndOfQuestions()
         {
             _end_of_questions = true;
-            Question_Property_Content = "Result:" + earned_points.ToString() + " of " + _maxPoints.ToString() + " in " + _elapsedTime.ToString();
-            
+            _selected_quiz = null;
+            Question_Property_Content = "Result:" + points.ToString() + " of " + _maxPoints.ToString() + " in " + elapsed_time.ToString();
+            StopTimer();
         }
 
        
         public List<Item> QuestionFromDB() {         
-            List<Item> tabelka = new();
-            tabelka = _database.ReadQuestions(selected_quiz);
-            Debug.WriteLine("przed foreach");
-            Debug.WriteLine(tabelka.Count());
-            foreach (Item item in tabelka)
-            { 
-                Debug.WriteLine(item.Name);
-            }
-            Debug.WriteLine("po foreach");
-            if (tabelka == null) Debug.WriteLine("tabelka to null");
-            return tabelka;
+            return _database.ReadQuestions(selected_quiz);
         }
 
         public bool CanNextQuestion(object obj)
@@ -312,24 +308,12 @@ namespace quiz_resolver.ViewModel
         }
 
 
-        // TIMER
-
-
-        public string ElapsedTime
-        {
-            get
-            {
-                return "Time: " + _elapsedTime.ToString(@"hh\:mm\:ss");
-            }
-        }
-
-
 
         public bool CanStart(object obj)
         {
             if (_selected_quiz != null && !_isRunning)
             {
-                
+
                 return true;
 
             }
@@ -340,35 +324,30 @@ namespace quiz_resolver.ViewModel
         }
 
 
-       
 
+        //TIMER
         public void StartTimer(object obj)
         {
-            
             _isRunning = true;
             _stopwatch.Start();
 
             // Powiadomienie o zmianie w czasie co 100 milisekund
-            var timer = new System.Windows.Threading.DispatcherTimer();
+            
             timer.Interval = TimeSpan.FromSeconds(1);
             timer.Tick += Timer_Tick;
             timer.Start();
         }
+        private void StopTimer() {
+            _isRunning = false;
+            timer.Stop();
+        }
+
 
         public void Timer_Tick(object sender, EventArgs e)
         {
-            _elapsedTime = _stopwatch.Elapsed;
-            OnPropertyChanged("ElapsedTime");
+            elapsed_time = _stopwatch.Elapsed.ToString(@"hh\:mm\:ss");
+            OnPropertyChanged(nameof(elapsed_time));
         }
-
-        public void TimerViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == "ElapsedTime" && !_isRunning)
-            {
-                _stopwatch.Reset();
-            }
-        }
-
 
         // OnPropertyChanged
         private void OnPropertyChanged(string propertyName) {

@@ -38,7 +38,7 @@
         <TextBlock  Name="Time" 
                 Grid.Column="1" 
                 Grid.Row="0" 
-                Text="{Binding ElapsedTime}"
+                Text="{Binding elapsed_time}"
         />
 
 
@@ -46,7 +46,7 @@
 
         <Label   Name="Question_Number" Grid.Column="2"  Grid.Row="0" Content="{Binding question_number}">
         </Label>
-        <Label    Grid.Column="2"  Grid.Row="0" Content="{Binding earned_points}" HorizontalContentAlignment="Right">
+        <Label    Grid.Column="2"  Grid.Row="0" Content="{Binding points}" HorizontalContentAlignment="Right">
         </Label>
         
         <Border Style="{StaticResource MyBorderStyle}" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1" Margin="10,10,10,10">
