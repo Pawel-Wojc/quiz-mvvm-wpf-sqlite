@@ -13,7 +13,7 @@ namespace quiz_resolver.Model
         private int _id;
         public int Id
         {
-            get { return _id; }
+            get => _id; 
             set
             {
                 if (_id != value)
@@ -24,10 +24,10 @@ namespace quiz_resolver.Model
             }
         }
 
-        private string _name;
+        private string _name = "";
         public string Name
         {
-            get { return _name; }
+            get => _name;
             set
             {
                 if (_name != value)

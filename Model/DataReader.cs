@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Collections.ObjectModel;
+using System.Configuration;
 
 namespace quiz_resolver.Model
 {
@@ -18,7 +19,7 @@ namespace quiz_resolver.Model
         {
             SQLiteConnection sqlite_conn;
             // Create a new database connection:
-            string db_source = "D:\\GDrive pawelitwojcik\\Studia\\Semestr 4\\Programowanie obiektowe i graficzne\\quiz_resolver\\quiz_resolver\\database.db";
+            string db_source = ConfigurationManager.ConnectionStrings["MyConnectionString"].ConnectionString;  // getting db_path from app.config
             sqlite_conn = new SQLiteConnection("Data Source="+db_source+"; Version = 3; New = True; Compress = True; ");
             // Open the connection:
             try
@@ -69,8 +70,7 @@ namespace quiz_resolver.Model
                 item.Id = sqlite_datareader.GetInt16(0);
                 item.Name = Base64Decode(sqlite_datareader.GetString(2));
                 question_table.Add(item);
-                //string test = sqlite_datareader.GetInt16(1).ToString() + " " + sqlite_datareader.GetString(2) + " A: " + item.AnswerA + "B " + item.AnswerB + "C " + item.AnswerC + "D " + item.AnswerD;
-                //System.Diagnostics.Debug.WriteLine(test);              
+                       
             }
             System.Diagnostics.Debug.WriteLine("odczytałem pytania");
             return ReadAnswers(question_table);
@@ -79,7 +79,7 @@ namespace quiz_resolver.Model
         public List<Item> ReadAnswers(List<Item> ListQuestion) // 
         {
             foreach (Item selecetedQuestion in ListQuestion) {
-                SQLiteDataReader sqlite_datareader;
+                
                 SQLiteDataReader sqlite_datareader_answer;
                 SQLiteCommand sqlite_cmd_answer;
                 sqlite_cmd_answer = sqlite_conn.CreateCommand();
@@ -124,7 +124,7 @@ namespace quiz_resolver.Model
                 i++;
                 }
             }
-            //System.Diagnostics.Debug.WriteLine("odczytałem odpowiedzi");
+            
             return ListQuestion;       
         }
 
@@ -134,6 +134,7 @@ namespace quiz_resolver.Model
             return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
         }
 
+        
         ~DataReader()
         {
             sqlite_conn.Close();

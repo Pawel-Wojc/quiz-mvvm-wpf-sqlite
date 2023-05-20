@@ -9,7 +9,7 @@ namespace quiz_resolver.ViewModel
 {
     public class RelayCommand : ICommand
     {
-        public event EventHandler CanExecuteChanged
+        public event EventHandler? CanExecuteChanged
         {
             add
             {
